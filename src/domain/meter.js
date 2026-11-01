@@ -138,6 +138,7 @@ export class Meter {
   }
 
   addLocation(entry) {
+    if (entry.login) this.classes.forgetBefore(SELF, entry.ts);
     this.locations.add(entry);
     this.runCache = new Map();
   }

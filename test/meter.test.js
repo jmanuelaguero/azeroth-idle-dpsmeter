@@ -112,3 +112,32 @@ test('open world fights do not create runs', () => {
   assert.equal(m.view('damage-done').location.type, 'world');
   assert.equal(m.runs().length, 0);
 });
+
+const SWITCH_SHAMAN = Array.from({ length: 8 }, (_, i) => `11/1 05:00:0${i}.000  Your Stormstrike hits Kobold for 100.`);
+const SWITCH_WARRIOR = ['11/1 05:10:00.000  You hit Gnoll for 40.', '11/1 05:10:01.000  Your Slam hits Gnoll for 90.'];
+const selfRow = (m) => m.view('damage-done').rows.find((r) => r.isSelf);
+
+test('logging in with another character forgets the previous class of You', () => {
+  const m = new Meter();
+  const login = parseNativeLine(`${new Date(2026, 10, 1, 5, 5, 0).toISOString()} worldport: login on map 0 at [1.0, 2.0, 3.0] (settle hold)`);
+  feed(m, SWITCH_SHAMAN);
+  assert.equal(selfRow(m).cls, 'shaman');
+  m.addLocation(login);
+  feed(m, SWITCH_WARRIOR);
+  assert.equal(selfRow(m).cls, 'warrior');
+});
+
+test('the character switch also applies when native.log is read after the combat log (app startup)', () => {
+  const m = new Meter();
+  feed(m, [...SWITCH_SHAMAN, ...SWITCH_WARRIOR]);
+  m.addLocation(parseNativeLine(`${new Date(2026, 10, 1, 5, 5, 0).toISOString()} worldport: login on map 0 at [1.0, 2.0, 3.0] (settle hold)`));
+  assert.equal(selfRow(m).cls, 'warrior');
+});
+
+test('a plain teleport is not a character switch', () => {
+  const m = new Meter();
+  feed(m, SWITCH_SHAMAN);
+  m.addLocation(parseNativeLine(`${new Date(2026, 10, 1, 5, 5, 0).toISOString()} worldport: map 189 at [1608.0, -318.9, 18.6] (settle hold)`));
+  feed(m, SWITCH_WARRIOR);
+  assert.equal(selfRow(m).cls, 'shaman');
+});

@@ -77,17 +77,30 @@ export const classIcon = (cls) => (cls ? `classicon_${cls}` : null);
 // so after switching characters the old class must age out instead of winning forever.
 const VOTE_WINDOW = 10;
 
-function vote(store, unit, key) {
+const countKeys = (recent) => {
+  const counts = new Map();
+  for (const { key } of recent) counts.set(key, (counts.get(key) ?? 0) + 1);
+  return counts;
+};
+
+function vote(store, unit, key, ts) {
   let v = store.get(unit);
   if (!v) store.set(unit, (v = { recent: [], counts: new Map() }));
-  v.recent.push(key);
+  v.recent.push({ key, ts });
   v.counts.set(key, (v.counts.get(key) ?? 0) + 1);
   if (v.recent.length > VOTE_WINDOW) {
-    const old = v.recent.shift();
+    const old = v.recent.shift().key;
     const n = v.counts.get(old) - 1;
     if (n > 0) v.counts.set(old, n);
     else v.counts.delete(old);
   }
+}
+
+function dropBefore(store, unit, ts) {
+  const v = store.get(unit);
+  if (!v) return;
+  v.recent = v.recent.filter((r) => r.ts == null || r.ts >= ts);
+  v.counts = countKeys(v.recent);
 }
 
 function winner(store, unit) {
@@ -103,15 +116,27 @@ export class ClassDetector {
   constructor() {
     this.votes = new Map(); // unit -> Map(class -> count)
     this.specVotes = new Map(); // unit -> Map(spec -> count)
+    this.since = new Map(); // unit -> ts before which its spells no longer count
   }
 
   observe(event) {
     if (!event.source || !event.spell) return;
     if (!['damage', 'heal', 'miss'].includes(event.kind)) return;
+    const since = this.since.get(event.source);
+    if (since != null && event.ts != null && event.ts < since) return;
     const spec = SPELL_TO_SPEC.get(event.spell);
     const cls = SPELL_TO_CLASS.get(event.spell) ?? spec?.split(':')[0];
-    if (cls) vote(this.votes, event.source, cls);
-    if (spec) vote(this.specVotes, event.source, spec);
+    if (cls) vote(this.votes, event.source, cls, event.ts);
+    if (spec) vote(this.specVotes, event.source, spec, event.ts);
+  }
+
+  // Another character took over the unit (a login as "You"): spells cast before `ts` no longer count,
+  // whether they were already seen or arrive later (native.log and the combat log are read separately).
+  forgetBefore(unit, ts) {
+    if (ts <= (this.since.get(unit) ?? -Infinity)) return;
+    this.since.set(unit, ts);
+    dropBefore(this.votes, unit, ts);
+    dropBefore(this.specVotes, unit, ts);
   }
 
   classOf(unit) {

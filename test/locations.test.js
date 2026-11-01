@@ -7,7 +7,7 @@ const line = (pos, login = false) =>
 
 test('parses map id and position from a worldport line', () => {
   assert.deepEqual(parseNativeLine(line('1608.0996, -318.92188, 18.6714')),
-    { ts: Date.parse('2026-11-01T08:16:41.586Z'), mapId: 189, pos: { x: 1608.0996, y: -318.92188, z: 18.6714 } });
+    { ts: Date.parse('2026-11-01T08:16:41.586Z'), mapId: 189, pos: { x: 1608.0996, y: -318.92188, z: 18.6714 }, login: false });
 });
 
 test('Scarlet Monastery wings are told apart by their entrance (positions from real logs)', () => {
@@ -35,4 +35,9 @@ test('moving to another wing starts a new visit', () => {
   assert.equal(t.at(6000).visit, 1000);
   assert.equal(t.at(9500).name, 'Scarlet Monastery: Cathedral');
   assert.equal(t.at(9500).visit, 9000);
+});
+
+test('a login worldport line is flagged as a character login', () => {
+  assert.equal(parseNativeLine(line('1924.0, -410.4, 18.0', true)).login, true);
+  assert.equal(parseNativeLine(line('1924.0, -410.4, 18.0')).login, false);
 });

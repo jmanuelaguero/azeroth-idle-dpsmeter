@@ -50,14 +50,15 @@ export function describeMap(mapId, pos = null) {
 
 export const isInstance = (location) => location && ['dungeon', 'raid', 'battleground'].includes(location.type);
 
-const WORLDPORT = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z)\s+worldport: (?:login on )?map (\d+)(?: at \[(-?[\d.]+), (-?[\d.]+), (-?[\d.]+)\])?/;
+const WORLDPORT = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z)\s+worldport: (login on )?map (\d+)(?: at \[(-?[\d.]+), (-?[\d.]+), (-?[\d.]+)\])?/;
 
-// Returns { ts, mapId, pos } for a teleport line of native.log, otherwise null.
+// Returns { ts, mapId, pos, login } for a teleport line of native.log, otherwise null.
+// `login` marks entering the world with a character, the only trace of a character switch.
 export function parseNativeLine(line) {
   const m = WORLDPORT.exec(line);
   if (!m) return null;
-  const pos = m[3] != null ? { x: Number(m[3]), y: Number(m[4]), z: Number(m[5]) } : null;
-  return { ts: Date.parse(m[1]), mapId: Number(m[2]), pos };
+  const pos = m[4] != null ? { x: Number(m[4]), y: Number(m[5]), z: Number(m[6]) } : null;
+  return { ts: Date.parse(m[1]), mapId: Number(m[3]), pos, login: Boolean(m[2]) };
 }
 
 // Ordered teleport history; answers "where was the player at time t" regardless of arrival order.
