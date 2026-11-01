@@ -3,7 +3,8 @@
 [![Latest release](https://img.shields.io/github/v/release/jmanuelaguero/azeroth-idle-dpsmeter?label=download&logo=github)](https://github.com/jmanuelaguero/azeroth-idle-dpsmeter/releases/latest)
 [![CI](https://github.com/jmanuelaguero/azeroth-idle-dpsmeter/actions/workflows/ci.yml/badge.svg)](https://github.com/jmanuelaguero/azeroth-idle-dpsmeter/actions/workflows/ci.yml)
 <!-- vt-badges:start -->
-![VirusTotal](https://img.shields.io/badge/VirusTotal-pending-lightgrey?logo=virustotal&logoColor=white)
+[![VirusTotal portable](https://img.shields.io/badge/VirusTotal%20%28portable%29-0%2F65%20detections-=virustotal&logoColor=white)](https://www.virustotal.com/gui/file/660d2395b2dd7e9b52c865e4f8bd7ed431ef284ca22d7090c838410031550471)
+[![VirusTotal installer](https://img.shields.io/badge/VirusTotal%20%28installer%29-0%2F59%20detections-=virustotal&logoColor=white)](https://www.virustotal.com/gui/file/1b8bce85e86bdaa5f0b14684c3fd1f6ba506c7c6d8d232a2de80db0929224fc5)
 <!-- vt-badges:end -->
 
 A Details!-style live damage meter overlay for **Azeroth Idle**.
