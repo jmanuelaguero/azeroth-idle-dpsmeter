@@ -1,0 +1,54 @@
+{
+  "name": "azeroth-meter",
+  "version": "1.0.0",
+  "description": "Details!-style live damage meter overlay for Azeroth Idle, driven by its WoWCombatLog.txt",
+  "author": "jmanuelaguero",
+  "license": "MIT",
+  "homepage": "https://github.com/jmanuelaguero/azeroth-meter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jmanuelaguero/azeroth-meter.git"
+  },
+  "private": true,
+  "type": "module",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test \"test/**/*.test.js\"",
+    "dist": "electron-builder --win --publish never"
+  },
+  "build": {
+    "appId": "io.github.jmanuelaguero.azerothmeter",
+    "productName": "Azeroth Meter",
+    "files": [
+      "src/**/*",
+      "build/icon.png",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "shortcutName": "Azeroth Meter",
+      "artifactName": "AzerothMeter-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "AzerothMeter-${version}-portable.${ext}"
+    },
+    "publish": null
+  },
+  "devDependencies": {
+    "electron": "45.2.1",
+    "electron-builder": "26.18.0"
+  }
+}

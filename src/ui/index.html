@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: wowicon:" />
+  <title>Azeroth Meter</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="window" id="window">
+    <header class="titlebar">
+      <button class="tb-btn segment-btn" id="segmentBtn">
+        <span class="btn-icon-wrap" id="segmentIcon"></span><span class="btn-label" id="segmentLabel">Current</span><span class="caret">▾</span>
+      </button>
+      <button class="tb-btn category-btn" id="categoryBtn">
+        <span class="btn-icon-wrap" id="categoryIcon"></span><span class="btn-label" id="categoryLabel">Damage Done</span><span class="caret">▾</span>
+      </button>
+      <div class="drag-space"></div>
+      <button class="tb-icon" id="reportBtn">✉</button>
+      <button class="tb-icon" id="resetBtn" title="Reset data">⟲</button>
+      <button class="tb-icon" id="gearBtn" title="Options">⚙</button>
+      <button class="tb-icon" id="minBtn" title="Minimize">–</button>
+      <button class="tb-icon close" id="closeBtn" title="Close">✕</button>
+    </header>
+
+    <div class="location" id="location" hidden></div>
+    <div class="log-warning" id="logWarning" hidden>
+      <strong>No combat events.</strong> If you're fighting, type <code>/combatlog</code> in the game chat.
+    </div>
+
+    <main class="content" id="content"></main>
+
+    <footer class="footer">
+      <span class="status" id="status"><span class="dot"></span><span id="statusText">Waiting</span></span>
+      <span class="footer-info" id="footerInfo"></span>
+      <span class="grip" id="grip" title="Resize"></span>
+    </footer>
+  </div>
+
+  <div class="menu" id="menu" hidden></div>
+  <div class="tooltip" id="tooltip" hidden></div>
+  <div class="toast" id="toast" hidden></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

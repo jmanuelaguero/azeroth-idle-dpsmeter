@@ -1,0 +1,109 @@
+name: Release
+
+# Push a version tag (e.g. `git tag v1.0.0 && git push origin v1.0.0`) to build, scan and publish a release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build installer and portable exe
+        run: npm run dist
+
+      - name: Virus scan with Microsoft Defender
+        shell: pwsh
+        run: |
+          $mp = "$env:ProgramFiles\Windows Defender\MpCmdRun.exe"
+          & $mp -SignatureUpdate | Out-Null
+          $status = Get-MpComputerStatus
+          $report = @("| File | Microsoft Defender |", "|---|---|")
+          foreach ($exe in Get-ChildItem dist -Filter *.exe) {
+            & $mp -Scan -ScanType 3 -File $exe.FullName -DisableRemediation | Out-Host
+            switch ($LASTEXITCODE) {
+              0 { $report += "| ``$($exe.Name)`` | ✅ No threats found |" }
+              2 { throw "Microsoft Defender flagged $($exe.Name) - release aborted." }
+              default { throw "Microsoft Defender scan failed for $($exe.Name) (exit code $LASTEXITCODE)." }
+            }
+          }
+          $report += ""
+          $report += "Engine $($status.AMEngineVersion) · signatures $($status.AntivirusSignatureVersion) ($($status.AntivirusSignatureLastUpdated.ToString('yyyy-MM-dd')))"
+          $report -join "`n" | Out-File -Encoding utf8 scan-report.md
+
+      - name: Compute SHA-256 checksums
+        shell: pwsh
+        run: |
+          Get-ChildItem dist -Filter *.exe | ForEach-Object {
+            "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)"
+          } | Out-File -Encoding ascii dist/SHA256SUMS.txt
+          Get-Content dist/SHA256SUMS.txt
+
+      - name: Write release notes
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          $sums = (Get-Content dist/SHA256SUMS.txt -Raw).Trim()
+          $scan = (Get-Content scan-report.md -Raw).Trim()
+          $fence = '```'
+          $notes = @(
+            '## Download',
+            '',
+            '| File | What it is |',
+            '|---|---|',
+            "| **AzerothMeter-Setup-$version.exe** | Installer (recommended). Installs in seconds and adds a desktop shortcut. |",
+            "| **AzerothMeter-$version-portable.exe** | No install needed, just run it. |",
+            '',
+            '**First time:** open Azeroth Idle and type `/combatlog` in the chat. The meter starts showing data as soon as you fight.',
+            '',
+            'Windows may show *"Windows protected your PC"* because the app is not code-signed: click **More info → Run anyway**.',
+            '',
+            '## Virus scan',
+            '',
+            $scan,
+            '',
+            '## SHA-256',
+            '',
+            $fence,
+            $sums,
+            $fence
+          )
+          $notes -join "`n" | Out-File -Encoding utf8 release-notes.md
+          Get-Content release-notes.md
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Azeroth Meter ${{ github.ref_name }}
+          body_path: release-notes.md
+          files: |
+            dist/*.exe
+            dist/SHA256SUMS.txt
+
+      # Optional second opinion: add a free VirusTotal API key as the VT_API_KEY repository secret.
+      - name: Scan with VirusTotal (optional)
+        if: env.VT_API_KEY != ''
+        env:
+          VT_API_KEY: ${{ secrets.VT_API_KEY }}
+        uses: crazy-max/ghaction-virustotal@v4
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          update_release_body: true
+          files: |
+            dist/*.exe
