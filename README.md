@@ -1,5 +1,11 @@
 # Azeroth Meter
 
+[![Latest release](https://img.shields.io/github/v/release/jmanuelaguero/azeroth-idle-dpsmeter?label=download&logo=github)](https://github.com/jmanuelaguero/azeroth-idle-dpsmeter/releases/latest)
+[![CI](https://github.com/jmanuelaguero/azeroth-idle-dpsmeter/actions/workflows/ci.yml/badge.svg)](https://github.com/jmanuelaguero/azeroth-idle-dpsmeter/actions/workflows/ci.yml)
+<!-- vt-badges:start -->
+![VirusTotal](https://img.shields.io/badge/VirusTotal-pending-lightgrey?logo=virustotal&logoColor=white)
+<!-- vt-badges:end -->
+
 A Details!-style live damage meter overlay for **Azeroth Idle**.
 It reads the combat log the game itself writes to disk. It never touches game memory, network traffic or game input.
 
@@ -52,7 +58,7 @@ npm run dist   # build the Windows installer and portable exe into dist/
 
 Releases are built by GitHub Actions when a `v*` tag is pushed (see `.github/workflows/release.yml`):
 tests, build, Microsoft Defender scan, SHA-256 checksums and an optional VirusTotal scan
-(add a `VT_API_KEY` repository secret to enable it).
+(enabled with the `VT_API_KEY` repository secret: results are added to the release notes and the README badges).
 
 `AZEROTH_METER_USER_DATA=<folder>` runs the app with an isolated settings/cache folder, useful for testing.
 

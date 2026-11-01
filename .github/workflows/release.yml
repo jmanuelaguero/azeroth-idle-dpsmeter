@@ -11,6 +11,8 @@ permissions:
 jobs:
   release:
     runs-on: windows-latest
+    env:
+      VT_API_KEY: ${{ secrets.VT_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -97,13 +99,69 @@ jobs:
             dist/SHA256SUMS.txt
 
       # Optional second opinion: add a free VirusTotal API key as the VT_API_KEY repository secret.
+      # Uploads each exe (large-file endpoint, the exes are > 32 MB), waits for the engines to finish,
+      # appends the results to the release notes and refreshes the README badges on main.
       - name: Scan with VirusTotal (optional)
         if: env.VT_API_KEY != ''
+        timeout-minutes: 45
+        shell: pwsh
         env:
-          VT_API_KEY: ${{ secrets.VT_API_KEY }}
-        uses: crazy-max/ghaction-virustotal@v4
-        with:
-          vt_api_key: ${{ secrets.VT_API_KEY }}
-          update_release_body: true
-          files: |
-            dist/*.exe
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $headers = @{ 'x-apikey' = $env:VT_API_KEY }
+          $api = 'https://www.virustotal.com/api/v3'
+          $results = @()
+          foreach ($exe in Get-ChildItem dist -Filter *.exe) {
+            $sha = (Get-FileHash $exe.FullName -Algorithm SHA256).Hash.ToLower()
+            $uploadUrl = (Invoke-RestMethod -Headers $headers -Uri "$api/files/upload_url").data
+            curl.exe --silent --show-error --fail -H "x-apikey: $env:VT_API_KEY" -F "file=@$($exe.FullName)" $uploadUrl | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "VirusTotal upload failed for $($exe.Name)" }
+
+            # Wait until the analysis of this exact file is complete (free API: max 4 requests/minute).
+            $stats = $null
+            for ($i = 0; $i -lt 30 -and -not $stats; $i++) {
+              Start-Sleep -Seconds 40
+              try {
+                $file = Invoke-RestMethod -Headers $headers -Uri "$api/files/$sha"
+                $s = $file.data.attributes.last_analysis_stats
+                $engines = $s.malicious + $s.suspicious + $s.undetected + $s.harmless
+                if ($file.data.attributes.last_analysis_date -and $engines -ge 40) { $stats = $s; $total = $engines }
+              } catch { Write-Host "waiting for VirusTotal analysis of $($exe.Name)..." }
+            }
+            if (-not $stats) { throw "VirusTotal analysis of $($exe.Name) did not finish in time" }
+            $flagged = $stats.malicious + $stats.suspicious
+            Write-Host "$($exe.Name): $flagged/$total"
+            $results += [pscustomobject]@{ Name = $exe.Name; Sha = $sha; Flagged = $flagged; Total = $total }
+          }
+
+          # Release notes: append a VirusTotal table.
+          $table = @('', '## VirusTotal', '', '| File | Detections | Report |', '|---|---|---|')
+          foreach ($r in $results) {
+            $table += "| ``$($r.Name)`` | $($r.Flagged)/$($r.Total) | [View report](https://www.virustotal.com/gui/file/$($r.Sha)) |"
+          }
+          $body = (gh release view "${{ github.ref_name }}" --json body --jq .body) -join "`n"
+          ($body + "`n" + ($table -join "`n")) | Out-File -Encoding utf8 vt-notes.md
+          gh release edit "${{ github.ref_name }}" --notes-file vt-notes.md
+
+          # README badges between the vt-badges markers, committed to main.
+          $badges = foreach ($r in $results) {
+            $kind = if ($r.Name -like '*portable*') { 'portable' } else { 'installer' }
+            $color = if ($r.Flagged -eq 0) { 'brightgreen' } else { 'red' }
+            $label = [uri]::EscapeDataString("VirusTotal ($kind)")
+            $msg = [uri]::EscapeDataString("$($r.Flagged)/$($r.Total) detections")
+            "[![VirusTotal $kind](https://img.shields.io/badge/$label-$msg-$color?logo=virustotal&logoColor=white)](https://www.virustotal.com/gui/file/$($r.Sha))"
+          }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git checkout -B main origin/main
+          $readme = Get-Content README.md -Raw
+          $block = "<!-- vt-badges:start -->`n" + ($badges -join "`n") + "`n<!-- vt-badges:end -->"
+          $readme = [regex]::Replace($readme, '(?s)<!-- vt-badges:start -->.*?<!-- vt-badges:end -->', $block)
+          [IO.File]::WriteAllText("$PWD/README.md", $readme)
+          git add README.md
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "docs: update VirusTotal badges for ${{ github.ref_name }}"
+            git push origin main
+          }
