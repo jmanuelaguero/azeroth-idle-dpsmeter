@@ -73,10 +73,21 @@ for (const [spec, def] of Object.entries(SPECS)) for (const s of def.spells) SPE
 
 export const classIcon = (cls) => (cls ? `classicon_${cls}` : null);
 
+// Only the most recent votes count: the game writes every character to the same log as "You",
+// so after switching characters the old class must age out instead of winning forever.
+const VOTE_WINDOW = 10;
+
 function vote(store, unit, key) {
   let v = store.get(unit);
-  if (!v) store.set(unit, (v = new Map()));
-  v.set(key, (v.get(key) ?? 0) + 1);
+  if (!v) store.set(unit, (v = { recent: [], counts: new Map() }));
+  v.recent.push(key);
+  v.counts.set(key, (v.counts.get(key) ?? 0) + 1);
+  if (v.recent.length > VOTE_WINDOW) {
+    const old = v.recent.shift();
+    const n = v.counts.get(old) - 1;
+    if (n > 0) v.counts.set(old, n);
+    else v.counts.delete(old);
+  }
 }
 
 function winner(store, unit) {
@@ -84,7 +95,7 @@ function winner(store, unit) {
   if (!v) return null;
   let best = null;
   let bestCount = 0;
-  for (const [key, n] of v) if (n > bestCount) [best, bestCount] = [key, n];
+  for (const [key, n] of v.counts) if (n > bestCount) [best, bestCount] = [key, n];
   return best;
 }
 
@@ -114,7 +125,7 @@ export class ClassDetector {
     if (!cls || !v) return null;
     let best = null;
     let bestCount = 0;
-    for (const [spec, n] of v) if (spec.startsWith(`${cls}:`) && n > bestCount) [best, bestCount] = [spec, n];
+    for (const [spec, n] of v.counts) if (spec.startsWith(`${cls}:`) && n > bestCount) [best, bestCount] = [spec, n];
     return best;
   }
 }

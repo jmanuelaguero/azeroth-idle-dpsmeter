@@ -1,6 +1,6 @@
 {
   "name": "azeroth-meter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Details!-style live damage meter overlay for Azeroth Idle, driven by its WoWCombatLog.txt",
   "author": "jmanuelaguero",
   "license": "MIT",
@@ -31,8 +31,18 @@
     "win": {
       "icon": "build/icon.png",
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     },
     "nsis": {
