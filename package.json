@@ -4,10 +4,10 @@
   "description": "Details!-style live damage meter overlay for Azeroth Idle, driven by its WoWCombatLog.txt",
   "author": "jmanuelaguero",
   "license": "MIT",
-  "homepage": "https://github.com/jmanuelaguero/azeroth-meter",
+  "homepage": "https://github.com/jmanuelaguero/azeroth-idle-dpsmeter",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jmanuelaguero/azeroth-meter.git"
+    "url": "https://github.com/jmanuelaguero/azeroth-idle-dpsmeter.git"
   },
   "private": true,
   "type": "module",

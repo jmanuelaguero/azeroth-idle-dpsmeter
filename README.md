@@ -7,7 +7,7 @@ It reads the combat log the game itself writes to disk. It never touches game me
 
 ## Install
 
-1. Download the latest release from the [Releases page](https://github.com/jmanuelaguero/azeroth-meter/releases/latest):
+1. Download the latest release from the [Releases page](https://github.com/jmanuelaguero/azeroth-idle-dpsmeter/releases/latest):
    - **AzerothMeter-Setup-x.y.z.exe**: installer (recommended)
    - **AzerothMeter-x.y.z-portable.exe**: no install, just run it
 2. Windows may show *"Windows protected your PC"* because the app is not code-signed. Click **More info → Run anyway**.
