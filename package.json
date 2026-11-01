@@ -1,6 +1,6 @@
 {
   "name": "azeroth-meter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Details!-style live damage meter overlay for Azeroth Idle, driven by its WoWCombatLog.txt",
   "author": "jmanuelaguero",
   "license": "MIT",
