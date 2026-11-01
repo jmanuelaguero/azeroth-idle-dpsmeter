@@ -21,9 +21,9 @@ export function parseTimestamp(month, day, h, m, s, ms, now = new Date()) {
 
 const unit = (name) => (/^you$/i.test(name) ? SELF : name);
 
-// "Your Fireball" -> { source: You, spell: Fireball }, "Teysa's Shoot" -> { source: Teysa, spell: Shoot }
+// "Your Fireball" / "your Deep Wound" (mid-sentence) -> { source: You, spell }, "Teysa's Shoot" -> { source: Teysa, spell: Shoot }
 function splitOwned(owned) {
-  const yours = /^Your (.+)$/.exec(owned);
+  const yours = /^[Yy]our (.+)$/.exec(owned);
   if (yours) return { source: SELF, spell: yours[1] };
   const idx = owned.indexOf("'s ");
   if (idx > 0) return { source: owned.slice(0, idx), spell: owned.slice(idx + 3) };

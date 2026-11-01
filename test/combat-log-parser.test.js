@@ -85,3 +85,18 @@ test('unknown sentences return null', () => {
 function pick(e) {
   return { kind: e.kind, source: e.source, target: e.target, spell: e.spell, amount: e.amount, crit: e.crit };
 }
+
+test('periodic damage from your own spell is yours, not the environment', () => {
+  const e = parseMessage('Lord Azrethoc suffers 43 Physical damage from your Deep Wound.');
+  assert.equal(e.source, SELF);
+  assert.equal(e.spell, 'Deep Wound');
+  assert.equal(e.target, 'Lord Azrethoc');
+  assert.equal(e.amount, 43);
+  assert.equal(e.periodic, true);
+});
+
+test('periodic damage without an owner still comes from the environment', () => {
+  const e = parseMessage('You suffer 12 Fire damage from Campfire.');
+  assert.equal(e.source, ENVIRONMENT);
+  assert.equal(e.spell, 'Campfire');
+});

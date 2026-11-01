@@ -15,6 +15,22 @@ const FALLBACK_SPELL_ICONS = {
   Falling: 'ability_rogue_quickrecovery',
   'Judgement of Wisdom': 'spell_holy_righteousnessaura',
   'Judgement of Light': 'spell_holy_healingaura',
+  Rejuvenation: 'spell_nature_rejuvenation',
+  Regrowth: 'spell_nature_resistnature',
+  'Healing Touch': 'spell_nature_healingtouch',
+  'Recently Bandaged': 'inv_misc_bandage_08',
+  'Holy Smite': 'spell_holy_holysmite',
+  Revenge: 'ability_warrior_revenge',
+  Bladestorm: 'ability_warrior_bladestorm',
+  'Deep Wound': 'ability_backstab',
+  'Improved Blocking': 'ability_defend',
+  'Multi-Shot': 'ability_upgrademoonglaive',
+  'Fire Shield III': 'spell_fire_firearmor',
+  'Rushing Charge': 'ability_warrior_charge',
+  'Arcing Smash': 'ability_warrior_cleave',
+  'Mark of Frost': 'spell_frost_chainsofice',
+  'Knock Away': 'inv_gauntlets_05',
+  Strike: 'ability_meleedamage',
 };
 
 export const ICONS = {
