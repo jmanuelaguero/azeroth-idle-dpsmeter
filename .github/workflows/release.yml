@@ -149,7 +149,7 @@ jobs:
             $color = if ($r.Flagged -eq 0) { 'brightgreen' } else { 'red' }
             $label = [uri]::EscapeDataString("VirusTotal ($kind)")
             $msg = [uri]::EscapeDataString("$($r.Flagged)/$($r.Total) detections")
-            "[![VirusTotal $kind](https://img.shields.io/badge/$label-$msg-$color?logo=virustotal&logoColor=white)](https://www.virustotal.com/gui/file/$($r.Sha))"
+            "[![VirusTotal $kind](https://img.shields.io/badge/$($label)-$($msg)-$($color)?logo=virustotal&logoColor=white)](https://www.virustotal.com/gui/file/$($r.Sha))"
           }
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
