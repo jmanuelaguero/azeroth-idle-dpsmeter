@@ -3,8 +3,8 @@
 [![Latest release](https://img.shields.io/github/v/release/jmanuelaguero/azeroth-idle-dpsmeter?label=download&logo=github)](https://github.com/jmanuelaguero/azeroth-idle-dpsmeter/releases/latest)
 [![CI](https://github.com/jmanuelaguero/azeroth-idle-dpsmeter/actions/workflows/ci.yml/badge.svg)](https://github.com/jmanuelaguero/azeroth-idle-dpsmeter/actions/workflows/ci.yml)
 <!-- vt-badges:start -->
-[![VirusTotal portable](https://img.shields.io/badge/VirusTotal%20%28portable%29-0%2F64%20detections-brightgreen?logo=virustotal&logoColor=white)](https://www.virustotal.com/gui/file/f96bd0bb2c0aaf94dd82f56ed2b8f0f0223436f5bdfb52cce8d677bc6055ebeb)
-[![VirusTotal installer](https://img.shields.io/badge/VirusTotal%20%28installer%29-0%2F66%20detections-brightgreen?logo=virustotal&logoColor=white)](https://www.virustotal.com/gui/file/19df5c5617499b41ad4c1570a2fe04182ec055a83a30697efe563a13fbb405b6)
+[![VirusTotal portable](https://img.shields.io/badge/VirusTotal%20%28portable%29-0%2F64%20detections-brightgreen?logo=virustotal&logoColor=white)](https://www.virustotal.com/gui/file/fd06a61ab7ffe2814efd4cd1c4317f63a365f26c7e313f3adc50efe57fb1fae6)
+[![VirusTotal installer](https://img.shields.io/badge/VirusTotal%20%28installer%29-0%2F67%20detections-brightgreen?logo=virustotal&logoColor=white)](https://www.virustotal.com/gui/file/7bad2f1244ed8a40e7a12a66732e977a4a3a3e57eecd52556c327c8857481ddb)
 <!-- vt-badges:end -->
 
 A Details!-style live damage meter overlay for **Azeroth Idle**.
